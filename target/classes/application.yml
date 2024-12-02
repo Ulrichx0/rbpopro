@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: Rbpoproject
+  datasource:
+    password: admin
+    url: jdbc:postgresql://localhost:5432/sandbox
+    username: postgres
+  jpa:
+    hibernate:
+      ddl-auto: update
+jwt:
+    secret: "Walkermoon"
+    expiration: 3600000 # 1 hour in milliseconds
+
+
+
