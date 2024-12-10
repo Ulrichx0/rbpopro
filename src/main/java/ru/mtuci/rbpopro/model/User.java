@@ -26,6 +26,7 @@ public class User implements UserDetails { // Implémente UserDetails
     @Column(name = "email", unique = true)
     private String email;
 
+    //@Enumerated(EnumType.ORDINAL)
     @Column(name = "role")
     private String role;
 
@@ -37,36 +38,36 @@ public class User implements UserDetails { // Implémente UserDetails
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.singletonList(new SimpleGrantedAuthority(role)); // Retourne le rôle
+        return Collections.singletonList(new SimpleGrantedAuthority(role));
     }
 
     @Override
     public String getPassword() {
-        return passwordHash; // Renvoie le hash du mot de passe
+        return passwordHash;
     }
 
     @Override
     public String getUsername() {
-        return login; // Utilise le login comme nom d'utilisateur
+        return login;
     }
 
     @Override
     public boolean isAccountNonExpired() {
-        return true; // Vous pouvez personnaliser la logique
+        return true;
     }
 
     @Override
     public boolean isAccountNonLocked() {
-        return true; // Vous pouvez personnaliser la logique
+        return true;
     }
 
     @Override
     public boolean isCredentialsNonExpired() {
-        return true; // Vous pouvez personnaliser la logique
+        return true;
     }
 
     @Override
     public boolean isEnabled() {
-        return true; // Vous pouvez personnaliser la logique
+        return true;
     }
 }
