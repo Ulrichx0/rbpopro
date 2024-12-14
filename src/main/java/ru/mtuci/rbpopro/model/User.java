@@ -17,16 +17,17 @@ public class User implements UserDetails { // Implement UserDetails
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
+    @Column(name = "login", unique = true)
     private String login;
 
-    @Column(name = "password_hash", nullable = false)
+    @Column(name = "password_hash")
     private String passwordHash;
 
-    @Column(nullable = false, unique = true)
+    @Column(name = "email", unique = true)
     private String email;
 
-    @Column(nullable = false)
+    //@Enumerated(EnumType.ORDINAL)
+    @Column(name = "role")
     private String role;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -42,7 +43,7 @@ public class User implements UserDetails { // Implement UserDetails
     private List<LicenceHistory> licenceHistories; // Licence changes associated with this user
 
 
-    // Method of Implementation  UserDetails
+    // Method of ZImplementation  UserDetails
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

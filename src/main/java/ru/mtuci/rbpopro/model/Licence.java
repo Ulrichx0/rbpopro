@@ -19,15 +19,15 @@ public class Licence {
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
-    private User user; // Many licenses can belong to one user
+    private User user; // Many licences can belong to one user
 
     @ManyToOne
     @JoinColumn(name = "type_id", nullable = false)
-    private LicenceType licenceType; // Many licenses can share one license type
+    private LicenceType licenceType; // Many licences can share one licence type
 
     @ManyToOne
     @JoinColumn(name = "product_id", nullable = false)
-    private Product product; // Many licenses can be associated with one product
+    private Product product; // Many licences can be associated with one product
 
     @Column(name = "first_activation_date")
     private Date firstActivationDate;
@@ -46,9 +46,70 @@ public class Licence {
     private User owner;
 
     @Column(nullable = false)
-    private Integer duration; 
+    private Integer duration;
 
     @Column(length = 255)
     private String description;
 
+    // Getters and Setters for relationships
+    public Product getProduct() {
+        return product;
+    }
+
+    public void setProduct(Product product) {
+        this.product = product;
+    }
+
+    public LicenceType getLicenceType() {
+        return licenceType;
+    }
+
+    public void setLicenceType(LicenceType licenceType) {
+        this.licenceType = licenceType;
+    }
+
+    // Optional ID-based getters and setters
+    public Long getProductId() {
+        return product != null ? product.getId() : null;
+    }
+
+    public void setProductId(Long productId) {
+        if (this.product == null) {
+            this.product = new Product();
+        }
+        this.product.setId(productId);
+    }
+
+    public Long getTypeId() {
+        return licenceType != null ? licenceType.getId() : null;
+    }
+    // Getter for the owner entity
+    public User getOwner() {
+        return owner;
+    }
+
+    // Setter for the owner entity
+    public void setOwner(User owner) {
+        this.owner = owner;
+    }
+
+    // Getter for the owner ID
+    public Long getOwnerId() {
+        return owner != null ? owner.getId() : null;
+    }
+
+    // Setter for the owner ID
+    public void setOwnerId(Long ownerId) {
+        if (this.owner == null) {
+            this.owner = new User(); // Initialize owner if null
+        }
+        this.owner.setId(ownerId);
+    }
+
+    public void setTypeId(Long typeId) {
+        if (this.licenceType == null) {
+            this.licenceType = new LicenceType();
+        }
+        this.licenceType.setId(typeId);
+    }
 }
