@@ -3,9 +3,10 @@ package ru.mtuci.rbpopro.controller;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.mtuci.rbpopro.model.Licence;
+import ru.mtuci.rbpopro.model.Ticket;
 import ru.mtuci.rbpopro.service.LicenceService;
 
-import java.util.List;
+import java.util.*;
 import java.util.Optional;
 
 @RestController
@@ -28,6 +29,30 @@ public class LicenceController {
         return licence.map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
+
+    @GetMapping("/{id}/ticket")
+    public ResponseEntity<Ticket> getLicenceTicket(@PathVariable Long id) {
+        Optional<Licence> optionalLicence = licenceService.getLicenceById(id);
+
+        if (optionalLicence.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        Licence licence = optionalLicence.get();
+        Ticket ticket = new Ticket();
+
+        ticket.setServerDate(new Date());
+        ticket.setTicketLifetime(3600L); // Время жизни тикета, например, 1 час
+        ticket.setActivationDate(licence.getFirstActivationDate());
+        ticket.setExpirationDate(licence.getEndingDate());
+        ticket.setUserId(licence.getOwnerId());
+        ticket.setDeviceId("device-placeholder"); // Добавьте свой идентификатор устройства
+        ticket.setLicenceBlocked(licence.getBlocked());
+        ticket.setDigitalSignature("dummy_signature"); // Здесь можно добавить реальную подпись
+
+        return ResponseEntity.ok(ticket);
+    }
+
 
     @PostMapping
     public Licence createLicence(@RequestBody Licence licence) {

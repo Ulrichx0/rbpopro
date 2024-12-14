@@ -34,6 +34,9 @@ public class Licence {
     @Column(name = "device_count")
     private Integer deviceCount;
 
+    @Column(name = "device_id", nullable = false)
+    private String deviceId;
+
     @Column(name = "owner_id", insertable = false, updatable = false)
     private Long ownerId;
 
