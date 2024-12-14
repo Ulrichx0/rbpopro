@@ -12,29 +12,37 @@ import java.util.*;
 @Entity
 @Data
 @Table(name = "users")
-public class User implements UserDetails { // Implémente UserDetails
+public class User implements UserDetails { // Implement UserDetails
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "login", unique = true)
+    @Column(nullable = false, unique = true)
     private String login;
 
-    @Column(name = "password_hash")
+    @Column(name = "password_hash", nullable = false)
     private String passwordHash;
 
-    @Column(name = "email", unique = true)
+    @Column(nullable = false, unique = true)
     private String email;
 
-    //@Enumerated(EnumType.ORDINAL)
-    @Column(name = "role")
+    @Column(nullable = false)
     private String role;
 
-    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference
-    private List<Licence> licences;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Licence> licences; // One user can have many licences
 
-    // Implémentation des méthodes de UserDetails
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Device> devices; // One user can have many devices
+
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Licence> ownedLicences; // Licences where the user is the owner
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<LicenceHistory> licenceHistories; // Licence changes associated with this user
+
+
+    // Method of Implementation  UserDetails
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
