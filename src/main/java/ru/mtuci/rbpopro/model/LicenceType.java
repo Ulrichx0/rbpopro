@@ -3,18 +3,20 @@ package ru.mtuci.rbpopro.model;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.*;
+import java.util.List;
 
-@Setter
-@Getter
 @Entity
-@Table(name = "license_type")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Table(name = "licence_types")
 public class LicenceType {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String name;
 
     @Column(name = "default_duration", nullable = false)
@@ -23,8 +25,6 @@ public class LicenceType {
     @Column(length = 255)
     private String description;
 
-    @OneToMany(mappedBy = "licenseType", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Licence> licences = new ArrayList<>();
-
-
+    @OneToMany(mappedBy = "licenceType", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Licence> licences;
 }
