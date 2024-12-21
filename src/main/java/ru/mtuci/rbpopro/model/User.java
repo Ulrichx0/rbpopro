@@ -27,7 +27,7 @@ public class User implements UserDetails { // Implement UserDetails
     private String email;
 
     //@Enumerated(EnumType.ORDINAL)
-    @Column(name = "role")
+    @Column(nullable = false)
     private String role;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)

@@ -1,10 +1,12 @@
 package ru.mtuci.rbpopro.model;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.*;
 
 @Entity
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "products")
 public class Product {
     @Id
@@ -14,6 +16,14 @@ public class Product {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "blocked", nullable = false)
-    private Boolean blocked;
+    @Column(name = "is_blocked", nullable = false)
+    private Boolean isBlocked;
+
+    public Boolean getIsBlocked() {
+        return isBlocked;
+    }
+
+    public void setIsBlocked(Boolean isBlocked) {
+        this.isBlocked = isBlocked;
+    }
 }
