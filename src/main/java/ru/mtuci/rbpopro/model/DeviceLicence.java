@@ -3,13 +3,14 @@ package ru.mtuci.rbpopro.model;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.*;
+import java.util.Date;
 
 @Setter
 @Getter
 @Entity
 @Table(name = "device_licence")
 public class DeviceLicence {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -25,6 +26,4 @@ public class DeviceLicence {
     @Column(name = "activation_date", nullable = false)
     private Date activationDate;
 
-
 }
-

@@ -1,16 +1,17 @@
 package ru.mtuci.rbpopro.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import ru.mtuci.rbpopro.model.Product;
 import ru.mtuci.rbpopro.service.ProductService;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
-@RequestMapping("/products")
+@RequestMapping("/api/products")
 public class ProductController {
 
     private final ProductService productService;
@@ -20,39 +21,50 @@ public class ProductController {
         this.productService = productService;
     }
 
+    // Get all products
     @GetMapping
-    public List<Product> getAllProducts() {
-        return productService.getAllProducts();
+    public ResponseEntity<List<Product>> getAllProducts() {
+        List<Product> products = productService.getAllProducts();
+        return ResponseEntity.ok(products); // Return HTTP 200 OK with the list of products
     }
 
+    // Get a product by ID
     @GetMapping("/{id}")
-    public Optional<Product> getProductById(@PathVariable Long id) {
-        return productService.getProductById(id);
+    public ResponseEntity<Product> getProductById(@PathVariable Long id) {
+        return productService.getProductById(id)
+                .map(ResponseEntity::ok) // Return 200 OK if found
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build()); // Return 404 if not found
     }
 
-    @PreAuthorize("hasRole('ADMIN')") // Only admins can access this endpoint
+    // Create a new product (only accessible by ADMIN)
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
-    public Product createProduct(@RequestBody Product product) {
-        return productService.saveProduct(product);
+    public ResponseEntity<Product> createProduct(@RequestBody Product product) {
+        Product createdProduct = productService.saveProduct(product);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdProduct); // Return 201 Created with the new product
     }
 
+    // Update an existing product by ID
     @PutMapping("/{id}")
-    public Optional<Product> updateProduct(@PathVariable Long id, @RequestBody Product productDetails) {
-        Optional<Product> productOptional = productService.getProductById(id);
-
-        if (productOptional.isPresent()) {
-            Product product = productOptional.get();
-            product.setName(productDetails.getName());
-            product.setIsBlocked(productDetails.getIsBlocked());
-            return Optional.of(productService.saveProduct(product));
-        }
-
-        return Optional.empty();
+    public ResponseEntity<Product> updateProduct(@PathVariable Long id, @RequestBody Product productDetails) {
+        return productService.getProductById(id)
+                .map(product -> {
+                    product.setName(productDetails.getName());
+                    product.setIsBlocked(productDetails.getIsBlocked());
+                    Product updatedProduct = productService.saveProduct(product);
+                    return ResponseEntity.ok(updatedProduct); // Return 200 OK with the updated product
+                })
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build()); // Return 404 if not found
     }
 
-
+    // Delete a product by ID
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
-    public void deleteProduct(@PathVariable Long id) {
-        productService.deleteProduct(id);
+    public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
+        if (productService.getProductById(id).isPresent()) {
+            productService.deleteProduct(id);
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build(); // Return 204 No Content after deletion
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).build(); // Return 404 if the product is not found
     }
 }

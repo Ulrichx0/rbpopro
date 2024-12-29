@@ -45,20 +45,34 @@ public class AuthController {
     @PostMapping("/register")
     public Map<String, String> registerUser(@RequestBody User user) {
 
+        // Check if the login already exists
         if (userRepository.existsByLogin(user.getLogin())) {
             return Map.of("error", "Login already exists");
         }
+
+        // Check if the email already exists
         if (userRepository.existsByEmail(user.getEmail())) {
             return Map.of("error", "Email already exists");
         }
 
+        // Set the default role to "USER" if no role is provided
+        if (user.getRole() == null || user.getRole().isEmpty()) {
+            user.setRole("USER");
+        } else {
+            // Allow only "USER" or "ADMIN" roles
+            if (!user.getRole().equalsIgnoreCase("USER") && !user.getRole().equalsIgnoreCase("ADMIN")) {
+                return Map.of("error", "Invalid role. Allowed roles are 'USER' or 'ADMIN'.");
+            }
+            user.setRole(user.getRole().toUpperCase()); // Normalize role to uppercase
+        }
 
+        // Hash the password
         user.setPasswordHash(passwordEncoder.encode(user.getPasswordHash()));
-        user.setRole("USER");
 
-
+        // Save the user in the repository
         userRepository.save(user);
 
-        return Map.of("message", "User registered successfully");
+        return Map.of("message", "User registered successfully", "role", user.getRole());
     }
+
 }

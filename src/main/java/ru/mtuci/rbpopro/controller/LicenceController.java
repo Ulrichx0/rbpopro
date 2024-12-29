@@ -2,20 +2,32 @@ package ru.mtuci.rbpopro.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.mtuci.rbpopro.model.Licence;
-import ru.mtuci.rbpopro.model.Ticket;
+import ru.mtuci.rbpopro.model.*;
 import ru.mtuci.rbpopro.service.LicenceService;
+import ru.mtuci.rbpopro.repository.ProductRepository;
+import ru.mtuci.rbpopro.repository.UserRepository;
+import ru.mtuci.rbpopro.repository.LicenceTypeRepository;
 
 import java.util.*;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/licences")
 public class LicenceController {
-    private final LicenceService licenceService;
 
-    public LicenceController(LicenceService licenceService) {
+    private final LicenceService licenceService;
+    private final ProductRepository productRepository;
+    private final UserRepository userRepository;
+    private final LicenceTypeRepository licenceTypeRepository;
+
+    // Inject the repositories in the constructor
+    public LicenceController(LicenceService licenceService,
+                             ProductRepository productRepository,
+                             UserRepository userRepository,
+                             LicenceTypeRepository licenceTypeRepository) {
         this.licenceService = licenceService;
+        this.productRepository = productRepository;
+        this.userRepository = userRepository;
+        this.licenceTypeRepository = licenceTypeRepository;
     }
 
     @GetMapping
@@ -42,21 +54,50 @@ public class LicenceController {
         Ticket ticket = new Ticket();
 
         ticket.setServerDate(new Date());
-        ticket.setTicketLifetime(3600L); // Время жизни тикета, например, 1 час
+        ticket.setTicketLifetime(3600L); // Example ticket lifetime: 1 hour
         ticket.setActivationDate(licence.getFirstActivationDate());
         ticket.setExpirationDate(licence.getEndingDate());
         ticket.setUserId(licence.getOwnerId());
-        ticket.setDeviceId("device-placeholder"); // Добавьте свой идентификатор устройства
+        ticket.setDeviceId("device-placeholder"); // Add your device ID logic here
         ticket.setLicenceBlocked(licence.getBlocked());
-        ticket.setDigitalSignature("dummy_signature"); // Здесь можно добавить реальную подпись
+        ticket.setDigitalSignature("dummy_signature"); // You can replace with real signature logic
 
         return ResponseEntity.ok(ticket);
     }
 
-
     @PostMapping
-    public Licence createLicence(@RequestBody Licence licence) {
-        return licenceService.saveLicence(licence);
+    public ResponseEntity<LicenceResponse> createLicence(@RequestBody CreateLicenseRequest licenceRequest) {
+        // Fetch related entities from repositories
+        Product product = productRepository.findById(licenceRequest.getProductId())
+                .orElseThrow(() -> new IllegalArgumentException("Product not found with ID: " + licenceRequest.getProductId()));
+
+        User owner = userRepository.findById(licenceRequest.getOwnerId())
+                .orElseThrow(() -> new IllegalArgumentException("Owner not found with ID: " + licenceRequest.getOwnerId()));
+
+        LicenceType licenceType = licenceTypeRepository.findById(licenceRequest.getLicenceTypeId())
+                .orElseThrow(() -> new IllegalArgumentException("LicenceType not found with ID: " + licenceRequest.getLicenceTypeId()));
+
+        // Create a new Licence entity
+        Licence licence = new Licence();
+        licence.setProduct(product);  // Set the entire Product entity
+        licence.setOwner(owner);      // Set the entire Owner entity
+        licence.setLicenceType(licenceType);  // Set the entire LicenceType entity
+        licence.setDeviceCount(licenceRequest.getDeviceCount());
+        licence.setBlocked(false);  // Default blocked value, can adjust based on business logic
+        licence.setCode(UUID.randomUUID().toString());  // Generate a unique licence code
+        licence.setDuration(licenceType.getDefaultDuration());  // Set duration based on LicenceType
+        licence.setDescription("Default licence description");  // Optional: Add a description or set as needed
+        // Save the Licence and return the response
+        Licence createdLicence = licenceService.saveLicence(licence);
+
+        LicenceResponse licenceResponse = new LicenceResponse();
+        licenceResponse.setCode(licence.getCode());
+        licenceResponse.setLicenceType(licence.getLicenceType().getName());
+        licenceResponse.setOwnerId(licence.getId());
+        licenceResponse.setProductName(licence.getProduct().getName());
+        licenceResponse.setDeviceCount(licence.getDeviceCount());
+        licenceResponse.setDuration(licence.getDuration());
+        return ResponseEntity.ok(licenceResponse);
     }
 
     @PutMapping("/{id}")
@@ -66,8 +107,8 @@ public class LicenceController {
         if (optionalLicence.isPresent()) {
             Licence licence = optionalLicence.get();
             licence.setCode(licenceDetails.getCode());
-            licence.setProductId(licenceDetails.getProductId());
-            licence.setTypeId(licenceDetails.getTypeId());
+            licence.setProduct(licenceDetails.getProduct()); // Correct: set the full Product entity
+            licence.setLicenceType(licenceDetails.getLicenceType()); // Correct: set the full LicenceType entity
             licence.setFirstActivationDate(licenceDetails.getFirstActivationDate());
             licence.setEndingDate(licenceDetails.getEndingDate());
             licence.setBlocked(licenceDetails.getBlocked());
