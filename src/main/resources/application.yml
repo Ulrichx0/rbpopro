@@ -3,7 +3,7 @@ spring:
     name: Rbpoproject
   datasource:
     url: jdbc:postgresql://localhost:5432/sandbox
-    password: admin
+    password: postgres
     username: postgres
     driver-class-name: org.postgresql.Driver
   jpa:
@@ -19,7 +19,16 @@ spring:
 
 jwt:
     secret: "31b1dbacca0fb58996051e76a27219b1cbc27471658f8b48a994c25199d5f681e4f734a2629aeb9d71f86a8ea7f7aef1e4b389ee75fb44f7f05c66aa821a6e47e0e54bba3ec880441a0f6566a61de93e3f41155346fd858fed469156281eb361847261231358f91519c4aa12423f2011d74d1281a804c0bbf621d8f64e8ed89a8e3f5a89116eafcf5ddf014344dbc90e1bf52571ac42fd49f8daa64c1d8b2474c134cbd97a0813fc6ba35fe61bfbd93935353fb926ba57ae25aefbcedec6cf40bc224c6f145941483e7fd7b0bb57ae20b92a06f7021e554e9a44056837513684ce2b9bfbc8c421426626a049a57d825f1d79ceb5f6e3f15422d4c197153ea44a"
-    expiration: 3600000 # 1 hour in milliseconds
+    expiration: 3600000
+
+server:
+  ssl:
+    key-store: D:/Rbpo_project/rbpopro/server.jks
+    key-store-password: serverPass
+    key-store-type: JKS
+    key-alias: server
+    key-password: serverPass
+    enabled: true
 
 
 
